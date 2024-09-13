@@ -37,11 +37,28 @@ image: /image-me.jpg
 - This picture is not stack safe
 
 ---
-layout: image
-image: /wf-example.png
----
+
 
 <!--
+I do not need to convince you that types are great.
+Maybe we took few years to realize that, but thanks to tools like TypeScript that brought a type system into JavaScript, we were able to step up our codebases and finally build production grade applications in JavaScript.
+
+And the more the typings are well written and strict, the more our code becames robust.
+
+And is all nice and clean, but eventually we compile our code to deploy it and... types are gone.
+
+Every application eventually has eventually to fetch data from some kind of persistence or api.
+
+And unfortunately that wire or that storage does'nt speak exaclty the same language as 
+What does it mean? It means that 
+
+The problem with most data validation and trasformation libraries out there is they just do input validation!
+They focus on ensuring an input value, which most of library defaulted to unknown, and turn it into a structure defined at runtime, but they miss completely turning it back to the input type.
+
+Effect schema does both, encoding and decoding, and this sets it apart from other libraries.
+
+What does it mean? Let's take an example, let's say you have some structured string, just read from a file, like a json string, and you are able to turn it into a data structure by just calling JSON.parse; an array, an object.
+
 
 
 -->
