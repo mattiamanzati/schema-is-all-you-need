@@ -46,11 +46,13 @@ Maybe we took few years to realize that, but thanks to tools like TypeScript tha
 And the more the typings are well written and strict, the more our code becames robust.
 
 And is all nice and clean, but eventually we compile our code to deploy it and... types are gone.
+Is that a problem of TypeScript's type getting removed while compiling?
 
-Every application eventually has eventually to fetch data from some kind of persistence or api.
+Unfortunately that's not it. The problem is that our programs cannot live in a black box.
+As soon we reach out from our program to the outside world, every assumption made while defining our strict types at compile time goes away.
+And every application eventually has eventually to fetch data from some kind of persistence or api.
 
-And unfortunately that wire or that storage does'nt speak exaclty the same language as 
-What does it mean? It means that 
+
 
 The problem with most data validation and trasformation libraries out there is they just do input validation!
 They focus on ensuring an input value, which most of library defaulted to unknown, and turn it into a structure defined at runtime, but they miss completely turning it back to the input type.
