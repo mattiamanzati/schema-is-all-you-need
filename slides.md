@@ -129,27 +129,18 @@ But to do that we need to tell the property based testing framework how to gener
 
 ---
 
-# 
+# This does not end here
+- JSONSchema
+- Assertions
 
 <!--
 We're stuck in a loop. To safely parse and encode back data, we need information about how data is structured.
 And there may be other requirements as well, let's say our app exposes some REST APIs, ho we may create the JSON schemas for the input of our APIs?
-This is kinda absurd, because we know how the data is shaped, so maybe there's a better way to solve this rather then repeating ourself twenty times.
+This whole mess is kinda absurd, because we know how the data is shaped, so dont you feel that maybe there's a better way to solve this rather then repeating ourself twenty times?
 
 
-They focus on ensuring an input value, which most of library defaulted to unknown, and turn it into a structure defined at runtime, but they miss completely turning it back to the input type.
 
 
--- adding property based testing
-
--- generating json schemas
-Now the impossible happens.
-A customer comes in and says that he wants now json schemas to describe all the domain models that our application involves.
-
-Again, don't you feel like you are kinda repeating yourself and maybe there is a better way to perform all this tasks?
-
-In the end all of those tasks just deal with our user defined data structure right? 
-So maybe there is a better way indeed.
 
 -- AST
 Let's go back to the drawing board.
@@ -160,6 +151,7 @@ Turns out the solution was always just under our nose.
 What if instead of creating a solution specific for validation/encoding/arbitraries and json schema we instead focus on defining a runtime something that can be described by a TypeScript's type?
 
 -- the problem with validate
+They focus on ensuring an input value, which most of library defaulted to unknown, and turn it into a structure defined at runtime, but they miss completely turning it back to the input type.
 Let's have a look at the type signature of a function that validates our data that comes from the wire.
 Most of validation libraries out there focus on starting from something unknown and turning it into our data structure.
 
