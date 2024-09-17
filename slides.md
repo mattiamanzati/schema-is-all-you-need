@@ -137,18 +137,69 @@ But to do that we need to tell the property based testing framework how to gener
 We're stuck in a loop. To safely parse and encode back data, we need information about how data is structured.
 And there may be other requirements as well, let's say our app exposes some REST APIs, ho we may create the JSON schemas for the input of our APIs?
 This whole mess is kinda absurd, because we know how the data is shaped, so dont you feel that maybe there's a better way to solve this rather then repeating ourself twenty times?
+-->
+---
 
+# One definition to rule them all
 
+```ts
+interface User{
+  id: number
+  name: string
+  birthday: Date
+}
+```
 
-
-
--- AST
+<!--
 Let's go back to the drawing board.
-The problem here is the way we defined our data structure.
-Sure, we can't use TypeScript anymore since we now need to perform stuff at validation, but how do we do it?
+The problem with all those tools is that they try to solve a specific issue, so they are all different packages built with different APIs.
+So maybe we should move to a schema-centric definition, and derive everything from that? Exactly in the same way zod does it.
 
-Turns out the solution was always just under our nose.
-What if instead of creating a solution specific for validation/encoding/arbitraries and json schema we instead focus on defining a runtime something that can be described by a TypeScript's type?
+
+
+The problem here becomes how can we define such data structure, but turns out the solution was always just under our nose.
+Our API should be able to fully describe a TypeScript's type... so maybe we should just use the same structure as TypeScript's AST to define internally our type?
+-->
+
+<!--
+And this is exactly the key point that makes in my opinion @effect/schema the best solution for defining and using schemas in TypeScript.
+effect/schema provides you with both the API to defines schemas, and along side few interpreters that will allow you to create decoding, encoding, arbitraries, json schemas and more from your schema definition.
+
+ -->
+---
+
+# test
+
+```ts
+import * as Schema from "@effect/schema/Schema"
+
+const User = Schema.Struct({
+  id: Schema.Number,
+  name: Schema.String
+})
+type User = Schema.Schema.Type<typeof User>
+// ^? { id: number, name: string }
+```
+<!--
+Let's start with a pretty simple example to see effect/schema in action.
+As you can see the APIs are pretty simple, we define the User schema by providing the set of properties and for each property we pass in the type we expect at that property.
+Exactly as other libraries, you can then use the Schema.Type utility to get the inferred type for our data structure. And use it in your code.
+-->
+---
+
+```ts {monaco-run}
+import * as Schema from "@effect/schema/Schema"
+
+const User = Schema.Struct({
+  id: Schema.Number,
+  name: Schema.String
+})
+
+console.log(User.ast)
+```
+<!--
+So where's the difference? Instead of building at runtime an implementation of the parse/encode/etc... function, each Schema type or combinator just produces an object that describes the AST.
+Here you can see that if we try to log the value of our user defined schema, it is again very similar to what we would expect from a regular typescript AST.
 
 -- the problem with validate
 They focus on ensuring an input value, which most of library defaulted to unknown, and turn it into a structure defined at runtime, but they miss completely turning it back to the input type.
@@ -161,13 +212,11 @@ Effect schema does both, encoding and decoding, and this sets it apart from othe
 
 What does it mean? Let's take an example, let's say you have some structured string, just read from a file, like a json string, and you are able to turn it into a data structure by just calling JSON.parse; an array, an object.
 
-
-
 -->
 
 ---
 layout: fact
 ---
 
-## Happy Effect-ing!
+## Happy Schem-ing!
 Thanks for your time!
