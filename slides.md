@@ -244,6 +244,13 @@ Exactly as other libraries, you can then use the Schema.Type utility to get the 
 
 ---
 
+<!--
+The list of combinators provided by schema is quite big and complete, so in my opinion it's not worth having a look at all of them,
+but the documentation is comprehensive and includes all of you can think of.
+-->
+
+---
+
 ```ts {monaco-run}
 import * as Schema from "@effect/schema/Schema"
 
@@ -311,11 +318,22 @@ layout: fact
 ## `(input: User) => unknown`
 
 <!--
-We've seen so far how easy is to turn an input such as unknown and turn it into our validated user, but what about the way back?
-And that's the problem most of other libraries have, they dont allow turning data back.
-And that's where effect schema shines.
-But turning something into unknown is'nt quite usefull right?
+We have seen how we can decode a value that comes from the wire and successfully get back our type.
+
+What about the way back?
+
+Most libraries don't allow that, but that's where effect schema shines.
 -->
+---
+
+<!--
+By providing our schema again to another interpreter, we can build a function that given our User it encodes back it into unknown.
+
+But turning something into unknown is'nt quite usefull right?
+
+I mean, if we have to send data back to some API maybe we have typings provided for those API, and using unknown where we know that instead we should have a user with and id and a name is'nt really the best.
+-->
+
 ---
 layout: fact
 ---
@@ -324,62 +342,89 @@ layout: fact
 
 <!--
 And that's why Schema has a second type parameter that we call the "encoded" type.
-Let's take a real world example. Let's say that our User has also a birthday field which is a date.
-How is that date fetched from the APIs or storage? A date is not a JSON primitive so it is likely it is encoded as something else on the wire, and then transformed into a date.
+
+The operations that can be performed by the decode and encode interpreters of schema become then more powerful.
+
+By knowing the AST, a schema can decode both from unknown or the encoded type.
+How?
+If we decodeUnknown the first step effect schema does is ensuring that the input is of the expected encoded type, and if it passes, it will then decode and trasform it in order to obtain the final expected type.
 -->
+
+---
+layout: livecoding
 ---
 
-## unknown =(assert)=> string =(decode)=> Date
-
 <!--
-If we take a look at the type definition for the Schema.Date well' see Schema<Date, string>.
-That means that the field will be decoded from and encoded back as a string, but upon a successful decoding well get it as a Date.
-So the job that those decodeUnknownSync APIs do is'nt really just validating the input.
-What they actually do is first assert that the input is of the encoded type we expected,
-and then they decode a Date starting from the input string just asserted.
-All of this thanks to Schema's AST.
+Let's take a real world example. Let's say that our User has also a birthday field which is a date.
+
+How is that date fetched from the APIs or storage? 
+
+A date is not a JSON primitive so it is likely it is encoded as something else on the wire, and then transformed into a date.
+
+If we take a look at the type we'll have exactly what we expect, a user with a birthday Date field.
+
+If we look instead at the encoded type we'll see instead a string, that is because Schema.Date uses as string as encoded side.
+
 -->
+
 ---
 
 ## unknown <=(assert)= string <=(encode)= Date
 ## string <=(encode)= Date
 
 <!--
-And this has some quite useful applications.
-Let's revert the operations, and see what we can do.
-This means we can just encode back our Date into its original string!
+This two-step operation of asserting first and then trasforming becomes quite useful.
+
+What if we already know for sure we have the encoded type on hand?
+We can call decode to start from that.
+
+But that becomes really useful on the encode part, because now we can perform encoding without the step of asserting unknown, and that allows to retain exactly the encoded data we were looking for.
 -->
 
 ---
 
 <!--
-And this is the general rule of schemas.
-They should be defined such as that encoding a value and then decoding from the result, results into the initial value.
-This is exactly the property we discussed of ensuring that we don't lose data while fetching and putting back data into our storage.
--->
+Now that we have for free the decoding and encoding, we can define the first rule of schemas.
 
----
+Given any schema, encode and decode should be written in a way that encoding the value and decoding it back results in the initial value.
 
-<!--
-The list of combinators provided by schema is quite big and complete, so in my opinion it's not worth having a look at all of them,
-but the documentation is comprehensive and includes all of you can think of.
+And all of the effect schema types are written and tested to ensure that this rule is satisfied, so that we will not occur in any accidental data loss in our applications.
 -->
 
 ---
 
 <!--
 But again, schemas are not just for encoding and decoding values.
+
 We can also for example derive arbitraries from a schema!
+
 To do that, we need to first convert the schema into a FastCheck arbitrary, and then we can use fastcheck sample to get as many random samples we want!
-This is very useful to seed our databases with random data!
+
+This is very useful to seed our databases with random data, or to build mock http apis that just return dumb data!
 And you can imagine that the more you make your schema definitions precise, the more the data will be like a real one!
 -->
 
 ---
 
 <!--
-Imagine you use schema to validate input and output of your HTTP APIs, would'nt be nice to generate JSON schemas for the data you expect as input and produce as output so that third party clients can use that to generate clients?
-Well imagine no more because you can!
+Or maybe we can build JSON Schemas!
+
+If you expose some APIs maybe you'd like also to have some json schema to embed in your OpenAPI that are always up in sync with your code!
+
+With schema it has never been more easier, guess what? You just need to call the json schema interpreter!
+
+Additional annotations like title and description can be used to provide additional infos inside the JSON schema!
+-->
+
+---
+
+<!--
+What else? The limit is just your imagination!
+
+What to do if a schema-to-x does not exists yet? You can build it yourself!
+
+Since we are at a react conference, why not build one that generates forms based on a schema definition?
+
 -->
 
 ---
