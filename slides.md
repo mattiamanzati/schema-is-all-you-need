@@ -5,7 +5,7 @@ lineNumbers: false
 info: Mattia Manzati
 drawings:
   persist: false
-transition: slide-left
+transition: fade
 title: A Schema is all you need!
 mdc: true
 download: true
@@ -64,7 +64,9 @@ layout: fact
 
 <!--
 Unfortunately eventually we reach a point were we cannot make strict type definitions anymore.
-They eventually have to reach the outside world for data, and as soon we do that, every assumption made while defining our strict types at compile time goes away.
+
+Our application eventually may reach the outside world for data, and as soon we do that, every assumption made while defining our strict types at compile time goes away.
+
 And this is not restricted to interacting with network APIs, this applies as well when you have to fetch data back from some kind of storage.
 
 Even though we may manage the storage of our application ourself, are we sure that the data we persist has'nt been corrupted or is somehow incompatible with our newest application update?
@@ -168,7 +170,6 @@ effect/schema provides you with both the API to defines schemas, and along side 
 
  -->
 ---
-
 
 ```ts
 import * as Schema from "@effect/schema/Schema"
@@ -290,6 +291,23 @@ This is exactly the property we discussed of ensuring that we don't lose data wh
 <!--
 The list of combinators provided by schema is quite big and complete, so in my opinion it's not worth having a look at all of them,
 but the documentation is comprehensive and includes all of you can think of.
+-->
+
+---
+
+<!--
+But again, schemas are not just for encoding and decoding values.
+We can also for example derive arbitraries from a schema!
+To do that, we need to first convert the schema into a FastCheck arbitrary, and then we can use fastcheck sample to get as many random samples we want!
+This is very useful to seed our databases with random data!
+And you can imagine that the more you make your schema definitions precise, the more the data will be like a real one!
+-->
+
+---
+
+<!--
+Imagine you use schema to validate input and output of your HTTP APIs, would'nt be nice to generate JSON schemas for the data you expect as input and produce as output so that third party clients can use that to generate clients?
+Well imagine no more because you can!
 -->
 
 ---
