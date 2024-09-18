@@ -77,9 +77,11 @@ Even though we may manage the storage of our application ourself, are we sure th
 # Data Validation Libraries
 
 <!--
-To solve this problem we have a lot of libraries like zod and others that solve this problem.
+A lot of libraries exists out there to solve this problem, let's say zod for example.
+
 Given any unknown data that may come from the wire or the storage, they perform validation and ensure the shape of the data is exactly the one we expect.
-Sure those are an additional dependency, but they make our application definetely more robust and less prone to fail due to malformed inputs.
+
+Sure those libraries are an additional dependency, but they make our application definitely more robust and less prone to failures due to malformed inputs.
 -->
 
 ---
@@ -87,26 +89,37 @@ Sure those are an additional dependency, but they make our application definetel
 # Here's zod
 
 <!--
-So here it is our updated example, you'll notice that to avoid defining twice the shape of the data most of validation libraries take advantage of TypeScript's infer to derive the typescript types from a runtime definition.
+So let's say you decide to use zod, now your code will look like something like this.
+
+You'll notice that to avoid defining twice the shape of the data most of validation libraries take advantage of TypeScript's infer to derive the typescript types from a runtime definition.
+
 And that is because to perform validation we need a runtime function to do that, and since typescript's type get compiled away, we need to use a javascript value as source of defining the data shape.
 -->
+
 ---
 
 # Encoding back
 
 <!--
 So what happens now that we have validated our incoming API data?
-Seems odd, but most of the time you fetch something from the storage, you'll have eventually to write it back into persistence with updated data.
 
-And unfortunately, that is out of scope for most data validation libraries. They only focus on input validation!
+Seems odd, but most of the time you fetch something from the storage, you'll have eventually to write it back with updated data.
+
+Let's just think at all of those edit screens in our application where the user fetches for a resources, changes a field, and saves it back.
+
 -->
+
 ---
 
 # Manual encoding
 
 <!--
-So zod won't be of any help here, we need to write additional code that given our data, produces back something that's accepted by our storage or APIs.
-Ok, now that's not clean and small code as we had before, but hey, it works! So why should we bother about it?
+Unfortunately, performing encoding is out of scope for most data validation libraries. 
+Sure, they only focus on input validation!
+
+So we need to write additional code that given our data, produces back something that has the shape accepted by our storage or APIs.
+
+Now the resulting code won't be clean and small code as before, but hey, it works! So why should we bother about it?
 -->
 ---
 
