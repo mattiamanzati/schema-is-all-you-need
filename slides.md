@@ -129,19 +129,24 @@ DB -> parse -> Todo -> encode -> Todo
 
 <!--
 Well, maybe we should care about it.
+
 If we are reading data from the storage, updating it, and then encoding it back, we need to ensure that given any data, we are able to persist it again.
-This may seem trivial, but we basically have added a cost of defining manually a function, and always ensure that for any value we can encode it, and given the output validate it back again ensuring that the output is the same as the initial input.
+
+This may seem trivial, but we basically have added a cost of defining manually a function that performs the same work of validation but in the other way back.
+
 This function is one of the critical point of our application, doing it wrong may result in unexpected user data loss.
 -->
+
 ---
 
 # Property based testing
 
 <!--
-And guess what? 
-One way of being sure that we succefully implemented that encode function for every value is through something called "property based testing", where instead of testing a function with a given user value, we describe the properties we expect from that encode function.
+One way of being sure that we succefully implemented that encode function is through something called "property based testing", where instead of testing a function with a given user value, we describe the properties we expect from that encode function.
+
 Defining the property we want is pretty easy, we want that given User value we are able to encode it, and then restore it again from the encoded version.
-But to do that we need to tell the property based testing framework how to generate valid user objects.
+
+But unfortunately to use property based testing frameworks we need to instruct them how to generate valid user objects in the first place.
 -->
 
 ---
@@ -151,10 +156,13 @@ But to do that we need to tell the property based testing framework how to gener
 - Assertions
 
 <!--
-We're stuck in a loop. To safely parse and encode back data, we need information about how data is structured.
-And there may be other requirements as well, let's say our app exposes some REST APIs, ho we may create the JSON schemas for the input of our APIs?
-This whole mess is kinda absurd, because we know how the data is shaped, so dont you feel that maybe there's a better way to solve this rather then repeating ourself twenty times?
+We're stuck in a loop. 
+
+To safely test and be sure that we can parse and encode back data, we need information about how data is structured.
+
+This whole mess is kinda absurd, because we know how the data is shaped, so dont you feel that maybe there's a better way to solve this rather then repeating ourself three or even more times?
 -->
+
 ---
 
 # One definition to rule them all
@@ -169,19 +177,52 @@ interface User{
 
 <!--
 Let's go back to the drawing board.
-The problem with all those tools is that they try to solve a specific issue, so they are all different packages built with different APIs.
-So maybe we should move to a schema-centric definition, and derive everything from that? Exactly in the same way zod does it.
 
-The problem here becomes how can we define such data structure, but turns out the solution was always just under our nose.
-Our API should be able to fully describe a TypeScript's type... so maybe we should just use the same structure as TypeScript's AST to define internally our type?
+The problem here is that we are basically considering three problems related to data as three complitely different problems, each one solved by a different library.
+
+So maybe we should move to a schema-centric definition, and derive everything from that?
 -->
+
+---
+
+```ts
+parse<User>({id: 1, name: "Mattia"})
+```
+
+<!--
+It would be kind-awesome to be able to directly use and inspect our types, but again we can't as they get removed upon compilation.
+
+We need to construct some kind of value, like an object, that can be used instead of our type.
+
+The problem here becomes how can we encode such data structure, there may be thousand of types out there, but turns out the solution was always just under our nose.
+-->
+
+---
+
+<!--
+Our applications are built in TypeScript, so our objective is being able to fully describe with a runtime value a TypeScript type right?
+
+So maybe we should just use the same structure as TypeScript's AST to define internally our schema!
+-->
+
 ---
 
 <!--
 And this is exactly the key point that makes in my opinion @effect/schema the best solution for defining and using schemas in TypeScript.
-effect/schema provides you with both the API to defines schemas, and along side few interpreters that will allow you to create decoding, encoding, arbitraries, json schemas and more from your schema definition.
 
- -->
+Effect/schema instead of focusing on a particular problem around data, provides you with both the API to defines schemas and interpreters that will allow you to create decoding, encoding, arbitraries, json schemas and more all starting from your schema definition!
+-->
+
+---
+
+<!--
+Effect schema has been written by Giulio Canti, an amazing guy that has already worked in the past on libraries focused around data decoding/encoding.
+
+You may already have heard of tcomb or io-ts right?
+
+Well @effect/schema can be considered kinda of the successor of those libraries.
+-->
+
 ---
 
 ```ts
@@ -192,11 +233,15 @@ const User = Schema.Struct({
   name: Schema.String
 })
 ```
+
 <!--
 Let's start with a pretty simple example to see effect/schema in action.
+
 As you can see the APIs are pretty simple, we define the User schema by providing the set of properties and for each property we pass in the type we expect at that property.
+
 Exactly as other libraries, you can then use the Schema.Type utility to get the inferred type for our data structure. And use it in your code.
 -->
+
 ---
 
 ```ts {monaco-run}
@@ -209,37 +254,51 @@ const User = Schema.Struct({
 
 console.log(User.ast)
 ```
+
 <!--
-So where's the difference? Instead of building at runtime an implementation of the parse/encode/etc... function, each Schema type or combinator just produces an object that describes the AST.
-Here you can see that if we try to log the value of our user defined schema, it is again very similar to what we would expect from a regular typescript AST.
+So you may say where's the difference? 
+
+If we try to log the value of our schema at runtime, you'll see that there is no validate or encode function in there, there is just an AST and few annotations!
+
+This produces really clean and lightweight APIs that can be composed very easily!
 
 And now how we go from this value to an actual function that validates our input?
 -->
+
 ---
 
 <<< ./samples-02-decode.ts {monaco}
 
 <!--
 That's easy, we call an interpreter that given our schema, produces a validator function!
-This function can then be called with your input data and will either produces a correct result or throw in case of error.
--->
----
 
+This interpreter will traverse the AST and construct the validator function using the data of the AST and the annotations.
+
+This function can then be called with your input data and will either produces a correct result or throw in case of error, just like any other data validation library.
+-->
+
+---
 
 <<< ./samples-02-decode-fp.ts {monaco-run}
 
 <!--
-And if you dont like throwing exceptions in your code don't worry, effect Schema includes also interpreters that creates a function that instead of throwing returns an Either of a success or a failure.
+If you are a functional guy and did'nt like what I just said, forget it!
+
+Effect Schema includes also interpreters that creates a function that instead of throwing returns an Either of a success or a failure.
+
 That way you can create robust applications exceptions free.
 -->
----
 
+---
 
 <<< ./samples-03-decode.ts {monaco-run}
 
 <!--
-And error messages are customizable too thanks to annotations!
-Instead of printing out this whole type that is kinda of unreadable, we can use what's called annotations to provide custom hints for interpreters of our schema!
+The errors raised while decoding are inspectable and customizable as well!
+
+Remember those annotations? Any schema type can be annotated with custom values, and any interpreter, like the decoding one, can use those values to provide custom experiences!
+
+Here for example we can see that by providing an identifier annotation, the error message changes from printing the structure it expects to printing "User"!
 -->
 
 ---
