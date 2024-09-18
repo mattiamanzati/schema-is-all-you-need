@@ -12,6 +12,8 @@ download: true
 canvasWidth: 850
 layout: image
 image: /image-cover.jpeg
+monacoTypesAdditionalPackages:
+  - effect
 ---
 
 
@@ -155,11 +157,10 @@ Let's go back to the drawing board.
 The problem with all those tools is that they try to solve a specific issue, so they are all different packages built with different APIs.
 So maybe we should move to a schema-centric definition, and derive everything from that? Exactly in the same way zod does it.
 
-
-
 The problem here becomes how can we define such data structure, but turns out the solution was always just under our nose.
 Our API should be able to fully describe a TypeScript's type... so maybe we should just use the same structure as TypeScript's AST to define internally our type?
 -->
+---
 
 <!--
 And this is exactly the key point that makes in my opinion @effect/schema the best solution for defining and using schemas in TypeScript.
@@ -168,7 +169,6 @@ effect/schema provides you with both the API to defines schemas, and along side 
  -->
 ---
 
-# test
 
 ```ts
 import * as Schema from "@effect/schema/Schema"
@@ -177,8 +177,6 @@ const User = Schema.Struct({
   id: Schema.Number,
   name: Schema.String
 })
-type User = Schema.Schema.Type<typeof User>
-// ^? { id: number, name: string }
 ```
 <!--
 Let's start with a pretty simple example to see effect/schema in action.
@@ -201,17 +199,97 @@ console.log(User.ast)
 So where's the difference? Instead of building at runtime an implementation of the parse/encode/etc... function, each Schema type or combinator just produces an object that describes the AST.
 Here you can see that if we try to log the value of our user defined schema, it is again very similar to what we would expect from a regular typescript AST.
 
--- the problem with validate
-They focus on ensuring an input value, which most of library defaulted to unknown, and turn it into a structure defined at runtime, but they miss completely turning it back to the input type.
-Let's have a look at the type signature of a function that validates our data that comes from the wire.
-Most of validation libraries out there focus on starting from something unknown and turning it into our data structure.
+And now how we go from this value to an actual function that validates our input?
+-->
+---
 
--- effect schema
+<<< ./samples-02-decode.ts {monaco}
 
-Effect schema does both, encoding and decoding, and this sets it apart from other libraries.
+<!--
+That's easy, we call an interpreter that given our schema, produces a validator function!
+This function can then be called with your input data and will either produces a correct result or throw in case of error.
+-->
+---
 
-What does it mean? Let's take an example, let's say you have some structured string, just read from a file, like a json string, and you are able to turn it into a data structure by just calling JSON.parse; an array, an object.
 
+<<< ./samples-02-decode-fp.ts {monaco-run}
+
+<!--
+And if you dont like throwing exceptions in your code don't worry, effect Schema includes also interpreters that creates a function that instead of throwing returns an Either of a success or a failure.
+That way you can create robust applications exceptions free.
+-->
+---
+
+
+<<< ./samples-03-decode.ts {monaco-run}
+
+<!--
+And error messages are customizable too thanks to annotations!
+Instead of printing out this whole type that is kinda of unreadable, we can use what's called annotations to provide custom hints for interpreters of our schema!
+-->
+
+---
+layout: fact
+---
+
+## `(input: unknown) => User`
+<br/>
+
+## `(input: User) => unknown`
+
+<!--
+We've seen so far how easy is to turn an input such as unknown and turn it into our validated user, but what about the way back?
+And that's the problem most of other libraries have, they dont allow turning data back.
+And that's where effect schema shines.
+But turning something into unknown is'nt quite usefull right?
+-->
+---
+layout: fact
+---
+
+## `Schema<A, E>`
+
+<!--
+And that's why Schema has a second type parameter that we call the "encoded" type.
+Let's take a real world example. Let's say that our User has also a birthday field which is a date.
+How is that date fetched from the APIs or storage? A date is not a JSON primitive so it is likely it is encoded as something else on the wire, and then transformed into a date.
+-->
+---
+
+## unknown =(assert)=> string =(decode)=> Date
+
+<!--
+If we take a look at the type definition for the Schema.Date well' see Schema<Date, string>.
+That means that the field will be decoded from and encoded back as a string, but upon a successful decoding well get it as a Date.
+So the job that those decodeUnknownSync APIs do is'nt really just validating the input.
+What they actually do is first assert that the input is of the encoded type we expected,
+and then they decode a Date starting from the input string just asserted.
+All of this thanks to Schema's AST.
+-->
+---
+
+## unknown <=(assert)= string <=(encode)= Date
+## string <=(encode)= Date
+
+<!--
+And this has some quite useful applications.
+Let's revert the operations, and see what we can do.
+This means we can just encode back our Date into its original string!
+-->
+
+---
+
+<!--
+And this is the general rule of schemas.
+They should be defined such as that encoding a value and then decoding from the result, results into the initial value.
+This is exactly the property we discussed of ensuring that we don't lose data while fetching and putting back data into our storage.
+-->
+
+---
+
+<!--
+The list of combinators provided by schema is quite big and complete, so in my opinion it's not worth having a look at all of them,
+but the documentation is comprehensive and includes all of you can think of.
 -->
 
 ---
