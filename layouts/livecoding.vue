@@ -47,7 +47,7 @@ onMounted(() => {
         <div class="w-full w-full" :style="style" />
         <div class="slidev-layout default" style="padding: 0rem">
             <video ref="livecoding-video"></video>
-            <div style="position: absolute; top: 0px; left: 0px;"> <slot /> </div>
+            <div style="position: absolute; top: 0px; left: 0px;">  </div>
         </div>
     </div>
 </template>

@@ -37,10 +37,6 @@ image: /image-me.jpg
 - Wear sweatshirt as cape
 - This picture is not stack safe
 
----
-
-# Today's agenda
-
 
 ---
 layout: fact
@@ -157,9 +153,9 @@ Did you noticed that the previous slide had a bug? Instead of using toJSON over 
 <!--
 One way of being sure that we succefully implemented that encode function is through something called "property based testing", where instead of testing a function with a given user value, we describe the properties we expect from that encode function.
 
-Defining the property we want is pretty easy, we want that given User value we are able to encode it, and then restore it again from the encoded version.
+Defining the property we want is pretty easy, we want that given Todo value we are able to encode it, and then restore it again from the encoded version.
 
-But unfortunately to use property based testing frameworks we need to instruct them how to generate valid user objects in the first place.
+But unfortunately to use property based testing frameworks we need to instruct them how to generate valid todo objects in the first place.
 -->
 
 ---
@@ -428,15 +424,29 @@ How is that date fetched from the APIs or storage?
 
 A date is not a JSON primitive so it is likely it is encoded as something else on the wire, and then transformed into a date.
 
-If we take a look at the type we'll have exactly what we expect, a user with a birthday Date field.
+If we take a look at the type we'll have exactly what we expect, a todo with a createdAt Date field.
 
 If we look instead at the encoded type we'll see instead a string, that is because Schema.Date uses as string as encoded side.
 -->
 
 ---
 
-## unknown <=(assert)= string <=(encode)= Date
-## string <=(encode)= Date
+<br />
+
+```mermaid
+sequenceDiagram
+    participant UA as unknown
+    participant A
+    participant I
+    participant UI as unknown
+    UI->>A: decodeUnknown
+    I->>A: decode
+    A->>I: encode
+    UA->>I: encodeUnknown
+    UA->>A: validate
+    UA->>A: is
+    UA->>A: asserts
+```
 
 <!--
 This two-step operation of asserting first and then trasforming becomes quite useful.
@@ -476,6 +486,10 @@ And you can imagine that the more you make your schema definitions precise, the 
 -->
 
 ---
+layout: livecoding
+---
+
+<<< ./samples-06-jsonschema.ts
 
 <!--
 Or maybe we can build JSON Schemas!
@@ -489,13 +503,38 @@ Additional annotations like title and description can be used to provide additio
 
 ---
 
-<!--
-What else? The limit is just your imagination!
+# Built-in @effect/Schema interpreters
+- Decoding
+- Encoding
+- Asserting
+- Arbitraries
+- JSON Schema
+- Equivalence
+- Pretty Print
 
+<!--
+What else? Schema already has a lot of builtin interpreters, and the list keeps growing! 
+
+-->
+
+---
+
+<!--
 What to do if a schema-to-x does not exists yet? You can build it yourself!
 
 Since we are at a react conference, why not build one that generates forms based on a schema definition?
 
+-->
+
+---
+layout: fact
+---
+
+# The future of schemas in AI
+
+---
+<!--
+The limit is just your imagination!
 -->
 
 ---
