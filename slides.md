@@ -401,16 +401,11 @@ I mean, if we have to send data back to some API maybe we have typings provided 
 layout: fact
 ---
 
-## `Schema<A, E>`
+## `Schema<A, I>`
 
 <!--
 And that's why Schema has a second type parameter that we call the "encoded" type.
 
-The operations that can be performed by the decode and encode interpreters of schema become then more powerful.
-
-By knowing the AST, a schema can decode both from unknown or the encoded type.
-How?
-If we decodeUnknown the first step effect schema does is ensuring that the input is of the expected encoded type, and if it passes, it will then decode and trasform it in order to obtain the final expected type.
 -->
 
 ---
@@ -449,22 +444,7 @@ sequenceDiagram
 ```
 
 <!--
-This two-step operation of asserting first and then trasforming becomes quite useful.
-
-What if we already know for sure we have the encoded type on hand?
-We can call decode to start from that.
-
-But that becomes really useful on the encode part, because now we can perform encoding without the step of asserting unknown, and that allows to retain exactly the encoded data we were looking for.
--->
-
----
-
-<!--
-Now that we have for free the decoding and encoding, we can define the first rule of schemas.
-
-Given any schema, encode and decode should be written in a way that encoding the value and decoding it back results in the initial value.
-
-And all of the effect schema types are written and tested to ensure that this rule is satisfied, so that we will not occur in any accidental data loss in our applications.
+Now that we have seen both the runtime type and the input type we can fully describe all the capabilities that effect schema can perform given a schema.
 -->
 
 ---
@@ -533,6 +513,7 @@ layout: fact
 # The future of schemas in AI
 
 ---
+
 <!--
 The limit is just your imagination!
 -->
