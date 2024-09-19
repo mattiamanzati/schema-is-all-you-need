@@ -1,14 +1,17 @@
 import * as Schema from "@effect/schema/Schema"
 
-export const User = Schema.Struct({
+export const Todo = Schema.Struct({
   id: Schema.Number,
-  name: Schema.String
+  name: Schema.String,
+  isCompleted: Schema.Boolean,
+  completedAt: Schema.Date
 })
 /* ^? Schema.Struct<{
     id: typeof Schema.Number;
     name: typeof Schema.String;
-    birthday: typeof Schema.Date;
+    isCompleted: typeof Schema.Boolean;
+    completedAt: typeof Schema.Date;
 }> */
 
-export type User = Schema.Schema.Type<typeof User>
-// ^? { id: number, name: string }
+export type Todo = Schema.Schema.Type<typeof Todo>
+// ^? { id: number; name: string; isCompleted: boolean; completedAt: Date; }

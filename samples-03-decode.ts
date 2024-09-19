@@ -1,16 +1,16 @@
 import * as Schema from "@effect/schema/Schema"
 
-const User = Schema.Struct({
+const Todo = Schema.Struct({
   id: Schema.Number,
   name: Schema.String
-}).annotations({ identifier: "User" })
+}).annotations({ identifier: "Todo" })
 
-const parseUser = Schema.decodeUnknownEither(User)
+const decodeTodo = Schema.decodeUnknownEither(Todo)
 
-const parsedUser = parseUser({ id: 2, name: true })
+const decodedTodo = decodeTodo({ id: 2, name: true })
 
-if(parsedUser._tag === "Left"){
-    console.log("error", parsedUser.left.message)
+if(decodedTodo._tag === "Left"){
+    console.error(decodedTodo.left.message)
 }else{
-    console.log("success", parsedUser.right)
+    console.log("success", decodedTodo.right)
 }

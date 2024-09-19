@@ -1,6 +1,7 @@
 ---
 theme: default
 class: text-center
+highlighter: shiki
 lineNumbers: false
 info: Mattia Manzati
 drawings:
@@ -12,8 +13,6 @@ download: true
 canvasWidth: 850
 layout: image
 image: /image-cover.jpeg
-monacoTypesAdditionalPackages:
-  - effect
 ---
 
 
@@ -73,6 +72,9 @@ Even though we may manage the storage of our application ourself, are we sure th
 -->
 
 ---
+layout: image
+image: /image-validator.png
+---
 
 # Data Validation Libraries
 
@@ -86,7 +88,9 @@ Sure those libraries are an additional dependency, but they make our application
 
 ---
 
-# Here's zod
+# Data Validation Libraries
+
+<<< ./samples-00-zod.ts
 
 <!--
 So let's say you decide to use zod, now your code will look like something like this.
@@ -96,6 +100,9 @@ You'll notice that to avoid defining twice the shape of the data most of validat
 And that is because to perform validation we need a runtime function to do that, and since typescript's type get compiled away, we need to use a javascript value as source of defining the data shape.
 -->
 
+---
+layout: image
+image: /image-storage-memory.png
 ---
 
 # Encoding back
@@ -113,6 +120,8 @@ Let's just think at all of those edit screens in our application where the user 
 
 # Manual encoding
 
+<<< ./samples-00-manual-encode.ts
+
 <!--
 Unfortunately, performing encoding is out of scope for most data validation libraries. 
 Sure, they only focus on input validation!
@@ -123,9 +132,9 @@ Now the resulting code won't be clean and small code as before, but hey, it work
 -->
 ---
 
-# Ensuring output is still valid
+# The cost of manual encoding
 
-DB -> parse -> Todo -> encode -> Todo
+<<< ./samples-00-manual-encode-cost.ts
 
 <!--
 Well, maybe we should care about it.
@@ -135,11 +144,15 @@ If we are reading data from the storage, updating it, and then encoding it back,
 This may seem trivial, but we basically have added a cost of defining manually a function that performs the same work of validation but in the other way back.
 
 This function is one of the critical point of our application, doing it wrong may result in unexpected user data loss.
+
+Did you noticed that the previous slide had a bug? Instead of using toJSON over a date it called toString, and that whould have resulted in a data loss.
 -->
 
 ---
 
 # Property based testing
+
+<<< ./samples-00-manual-encode-fastcheck.ts
 
 <!--
 One way of being sure that we succefully implemented that encode function is through something called "property based testing", where instead of testing a function with a given user value, we describe the properties we expect from that encode function.
@@ -150,28 +163,40 @@ But unfortunately to use property based testing frameworks we need to instruct t
 -->
 
 ---
+layout: showcase-left
+image: /image-me-recursion.png
+---
+
+<br/>
 
 # This does not end here
+
+- Decoding
+- Encoding
+- Assertion
+- Fastcheck
+- Equality
 - JSONSchema
-- Assertions
 
 <!--
 We're stuck in a loop. 
 
-To safely test and be sure that we can parse and encode back data, we need information about how data is structured.
+To safely test and be sure that we can decode and encode back data, we need information about how data is structured.
 
 This whole mess is kinda absurd, because we know how the data is shaped, so dont you feel that maybe there's a better way to solve this rather then repeating ourself three or even more times?
 -->
 
 ---
 
-# One definition to rule them all
+## One definition to rule them all
+<br/>
 
 ```ts
-interface User{
+interface Todo {
   id: number
   name: string
-  birthday: Date
+  isCompleted: boolean
+  createdAt: Date
 }
 ```
 
@@ -185,8 +210,24 @@ So maybe we should move to a schema-centric definition, and derive everything fr
 
 ---
 
+## Unfortunately won't work...
+<br/>
+
 ```ts
-parse<User>({id: 1, name: "Mattia"})
+interface Todo {
+  id: number
+  name: string
+  isCompleted: boolean
+  createdAt: Date
+}
+
+decode<Todo>({id: 1, name: "Buy milk", isCompleted: false, createdAt: new Date()})
+```
+
+...gets compiled to...
+
+```ts
+decode({id: 1, name: "Buy milk", isCompleted: false, createdAt: new Date()})
 ```
 
 <!--
@@ -198,6 +239,9 @@ The problem here becomes how can we encode such data structure, there may be tho
 -->
 
 ---
+layout: image
+image: /image-ast.png
+---
 
 <!--
 Our applications are built in TypeScript, so our objective is being able to fully describe with a runtime value a TypeScript type right?
@@ -206,14 +250,32 @@ So maybe we should just use the same structure as TypeScript's AST to define int
 -->
 
 ---
+layout: fact
+---
+
+# @effect/schema
+A Library for defining and using schemas
 
 <!--
-And this is exactly the key point that makes in my opinion @effect/schema the best solution for defining and using schemas in TypeScript.
+And this is exactly the implementation details that makes in my opinion @effect/schema the best solution for defining and using schemas in TypeScript.
 
 Effect/schema instead of focusing on a particular problem around data, provides you with both the API to defines schemas and interpreters that will allow you to create decoding, encoding, arbitraries, json schemas and more all starting from your schema definition!
 -->
 
 ---
+layout: image-left
+image: /images-giulio.jpeg
+---
+
+## Giulio Canti
+
+Author of other impressing TypeScript libraries
+
+<br/>
+
+- tcomb
+- fp-ts
+- io-ts
 
 <!--
 Effect schema has been written by Giulio Canti, an amazing guy that has already worked in the past on libraries focused around data decoding/encoding.
@@ -224,15 +286,10 @@ Well @effect/schema can be considered kinda of the successor of those libraries.
 -->
 
 ---
+layout: livecoding
+---
 
-```ts
-import * as Schema from "@effect/schema/Schema"
-
-const User = Schema.Struct({
-  id: Schema.Number,
-  name: Schema.String
-})
-```
+<<< ./samples-01.ts
 
 <!--
 Let's start with a pretty simple example to see effect/schema in action.
@@ -243,6 +300,8 @@ Exactly as other libraries, you can then use the Schema.Type utility to get the 
 -->
 
 ---
+layout: livecoding
+---
 
 <!--
 The list of combinators provided by schema is quite big and complete, so in my opinion it's not worth having a look at all of them,
@@ -250,17 +309,10 @@ but the documentation is comprehensive and includes all of you can think of.
 -->
 
 ---
+layout: livecoding
+---
 
-```ts {monaco-run}
-import * as Schema from "@effect/schema/Schema"
-
-const User = Schema.Struct({
-  id: Schema.Number,
-  name: Schema.String
-})
-
-console.log(User.ast)
-```
+<<< ./samples-01-logschema.ts
 
 <!--
 So you may say where's the difference? 
@@ -273,8 +325,10 @@ And now how we go from this value to an actual function that validates our input
 -->
 
 ---
+layout: livecoding
+---
 
-<<< ./samples-02-decode.ts {monaco}
+<<< ./samples-02-decode.ts
 
 <!--
 That's easy, we call an interpreter that given our schema, produces a validator function!
@@ -285,8 +339,10 @@ This function can then be called with your input data and will either produces a
 -->
 
 ---
+layout: livecoding
+---
 
-<<< ./samples-02-decode-fp.ts {monaco-run}
+<<< ./samples-02-decode-fp.ts
 
 <!--
 If you are a functional guy and did'nt like what I just said, forget it!
@@ -297,8 +353,10 @@ That way you can create robust applications exceptions free.
 -->
 
 ---
+layout: livecoding
+---
 
-<<< ./samples-03-decode.ts {monaco-run}
+<<< ./samples-03-decode.ts 
 
 <!--
 The errors raised while decoding are inspectable and customizable as well!
@@ -307,15 +365,22 @@ Remember those annotations? Any schema type can be annotated with custom values,
 
 Here for example we can see that by providing an identifier annotation, the error message changes from printing the structure it expects to printing "User"!
 -->
+---
+layout: livecoding
+---
+
+<!--
+By default the decode method returns only the first error it encounters, but you can specify options to tell effect schema to collect as many errors it can.
+-->
 
 ---
 layout: fact
 ---
 
-## `(input: unknown) => User`
+## `decode: (input: unknown) => Todo`
 <br/>
 
-## `(input: User) => unknown`
+## `encode: (input: Todo) => unknown`
 
 <!--
 We have seen how we can decode a value that comes from the wire and successfully get back our type.
@@ -326,8 +391,10 @@ Most libraries don't allow that, but that's where effect schema shines.
 -->
 ---
 
+<<< ./samples-05-encode.ts
+
 <!--
-By providing our schema again to another interpreter, we can build a function that given our User it encodes back it into unknown.
+By providing our schema again to another interpreter, we can build a function that given our Todo it encodes back it into unknown.
 
 But turning something into unknown is'nt quite usefull right?
 
@@ -355,7 +422,7 @@ layout: livecoding
 ---
 
 <!--
-Let's take a real world example. Let's say that our User has also a birthday field which is a date.
+Let's take a real world example. Let's go back to our createdAt field.
 
 How is that date fetched from the APIs or storage? 
 
@@ -364,7 +431,6 @@ A date is not a JSON primitive so it is likely it is encoded as something else o
 If we take a look at the type we'll have exactly what we expect, a user with a birthday Date field.
 
 If we look instead at the encoded type we'll see instead a string, that is because Schema.Date uses as string as encoded side.
-
 -->
 
 ---
@@ -392,6 +458,11 @@ And all of the effect schema types are written and tested to ensure that this ru
 -->
 
 ---
+layout: livecoding
+---
+
+<<< ./samples-04-fastcheck.ts
+
 
 <!--
 But again, schemas are not just for encoding and decoding values.

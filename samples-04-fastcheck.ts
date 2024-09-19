@@ -2,12 +2,13 @@ import * as Schema from "@effect/schema/Schema"
 import * as FastCheck from "@effect/schema/FastCheck"
 import * as Arbitrary from "@effect/schema/Arbitrary"
 
-const User = Schema.Struct({
+const Todo = Schema.Struct({
   id: Schema.Int,
   name: Schema.String,
-  birthday: Schema.Date
-}).annotations({ identifier: "User" })
+  isCompleted: Schema.Boolean,
+  createdAt: Schema.Date
+}).annotations({ identifier: "Todo" })
 
-const ArbitraryUser = Arbitrary.make(User)
+const ArbitraryTodo = Arbitrary.make(Todo)
 
-console.log(FastCheck.sample(ArbitraryUser, 2))
+console.log(FastCheck.sample(ArbitraryTodo, 2))

@@ -1,15 +1,17 @@
 import * as Schema from "@effect/schema/Schema"
 
-const User = Schema.Struct({
+const Todo = Schema.Struct({
   id: Schema.Number,
   name: Schema.String
 })
 
-const parseUserOrThrow = Schema.decodeUnknownSync(User)
+const decodeTodoOrThrow = Schema.decodeUnknownSync(Todo)
 /* ^? (u: unknown) => {
     readonly id: number;
     readonly name: string;
 } */
 
-const mattia = parseUserOrThrow({ id: 1, name: "Mattia"}) // parses successfully
-const error = parseUserOrThrow({ id: 2, name: true }) // throws
+const firstTodo = decodeTodoOrThrow({ id: 1, name: "Buy milk"}) // decode successfully
+console.log("firstTodo", firstTodo)
+
+const secondTodo = decodeTodoOrThrow({ id: 2, name: true }) // throws
