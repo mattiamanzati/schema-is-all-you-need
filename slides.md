@@ -529,6 +529,10 @@ What else? Schema already has a lot of builtin interpreters, and the list keeps 
 
 
 ---
+layout: fact
+---
+
+# Something is not in the list?
 
 <!--
 What to do if a schema-to-x does not exists yet? You can build it yourself!
@@ -542,4 +546,6 @@ layout: fact
 
 ## Happy Schem-ing!
 Thanks for your time!
-x.com/mattiamanzati
+
+_x.com/mattiamanzati_
+
