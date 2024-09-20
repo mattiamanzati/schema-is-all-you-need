@@ -246,6 +246,15 @@ So maybe we should just use the same structure as TypeScript's AST to define int
 -->
 
 ---
+layout: image
+image: /image-interpreter.png
+---
+
+<!--
+So now that we have find a good way to define our structures, we can use interpreters to transform that data structure into something usable.
+-->
+
+---
 layout: fact
 ---
 
@@ -283,6 +292,7 @@ Well @effect/schema can be considered kinda of the successor of those libraries.
 
 ---
 layout: livecoding
+title: Effect Schema Quickstart
 ---
 
 <<< ./samples-01.ts
@@ -448,6 +458,19 @@ Now that we have seen both the runtime type and the input type we can fully desc
 -->
 
 ---
+layout: fact
+---
+
+# Schema
+# ❤️ 
+# Effect
+
+<!--
+Schema is not limited to perform sync validation, thanks to it's interop with effect you can get back an effect, or a promise if you really want, and the start defining async validation rules!
+-->
+
+
+---
 layout: livecoding
 ---
 
@@ -494,27 +517,22 @@ Additional annotations like title and description can be used to provide additio
 
 <!--
 What else? Schema already has a lot of builtin interpreters, and the list keeps growing! 
-
 -->
+---
+
+# Schema applications
+
+- HTTP RPC Server (@effect/rpc)
+- HTTP Api (@effect/platform)
+- Generate static TS Typings
+- Support AI training in outputting structured data
+
 
 ---
 
 <!--
 What to do if a schema-to-x does not exists yet? You can build it yourself!
 
-Since we are at a react conference, why not build one that generates forms based on a schema definition?
-
--->
-
----
-layout: fact
----
-
-# The future of schemas in AI
-
----
-
-<!--
 The limit is just your imagination!
 -->
 
