@@ -9,16 +9,15 @@ const SignupData = Schema.Struct({
 }).pipe(
     Schema.filter(
         data => data.password === data.passwordRepeat,
-        { message: () => "passwords should match" }
+        { message: () => "passwords should match"}
     )
-).annotations({ identifier: "Signup" })
+).annotations({ identifier: "Signup"})
 
 const decode = Schema.decodeUnknownSync(SignupData)
 
-const result = decode({
+decode({
     name: "Mattia",
     surname: "Manzati",
     password: "Hello!",
-    passwordRepeat: "Hello!"
+    passwordRepeat: "Hello."
 })
-console.log("success", result)

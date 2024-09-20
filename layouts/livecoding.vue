@@ -59,8 +59,10 @@ onMounted(() => {
     <div class="grid grid-cols-1 w-full h-full">
         <div class="w-full w-full" :style="style" />
         <div class="slidev-layout default" style="padding: 0rem">
-            <video ref="livecoding-video"></video>
+            <!--<video ref="livecoding-video"></video>
             <div style="position: absolute; top: 0px; left: 0px; background-color: #333333; color: #FFFFFF; padding: 0.2em;"><small>Watch me fail live!</small></div>
+        -->
+            <slot />
         </div>
     </div>
 </template>
